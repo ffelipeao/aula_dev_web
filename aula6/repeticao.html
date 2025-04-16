@@ -1,0 +1,44 @@
+<!-- condicoes.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Teste JS</title>
+</head>
+
+<body>
+    <div>
+        <h1>Testando JS local com condições</h1>
+        <input type="number" id="edtvalor" placeholder="Digite o valor">
+        <button onclick="percorreValores()">Verificar</button>
+    </div>
+    <div>
+        <h2>Resultado</h2>
+        <p>Valor: <span id="valor"></span></p>
+        <p>Saída: <span id="resultado"></span></p>
+    </div>
+    <script>
+        function percorreValores() {
+            let valor = parseInt(document.getElementById("edtvalor").value);
+            document.getElementById("valor").innerHTML = valor;
+            let i = 0;
+            let resultado = "";
+
+            while (i < valor) {
+                resultado += "Interação: " + i + "<br>";
+                i++;
+            }
+
+            //Fazendo a mesma coisa com o for
+            //Mostrando saida no console
+            for (let i = 0; i < valor; i++) {
+                console.log(i);
+                //resultado += "Interação: " + i + "<br>";
+            }
+
+            document.getElementById("resultado").innerHTML = resultado;
+        }
+    </script>
+</body>
+
+</html>

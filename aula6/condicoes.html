@@ -1,0 +1,34 @@
+<!-- condicoes.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Teste JS</title>
+</head>
+
+<body>
+    <div>
+        <h1>Testando JS local com condições</h1>
+        <input type="number" id="edtidade" placeholder="Digite sua idade">
+        <button onclick="verificarIdade()">Verificar</button>
+    </div>
+    <div>
+        <h2>Resultado</h2>
+        <p>Idade: <span id="idade"></span></p>
+        <p>Resultado: <span id="resultado"></span></p>
+    </div>
+    <script>
+        function verificarIdade() {
+            let idade = document.getElementById("edtidade").value;
+            //console.log(idade); //exibe o valor digitado no console log do navegador
+            document.getElementById("idade").innerHTML = idade;
+            if (idade >= 18) {
+                document.getElementById("resultado").innerHTML = "Maior de idade";
+            } else {
+                document.getElementById("resultado").innerHTML = "Menor de idade";
+            }
+        }
+    </script>
+</body>
+
+</html>

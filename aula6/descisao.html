@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <h1>Testando JS local com Estrutura de Decisão - switch/case </h1>
+        <input type="number" id="edtdia" placeholder="Digite o dia da semana">
+        <button onclick="verificarDiaSemana()">Verificar</button>
+    </div>
+    <div>
+        <h2>Resultado</h2>
+        <p>Num dia da semana: <span id="dia"></span></p>
+        <p>Resultado: <span id="resultado"></span></p>
+    </div>
+    <script>
+        //verificar dia da semana e mostrar resultado
+        function verificarDiaSemana() {
+            //pegar o valor do input e converter para número inteiro
+            let dia = parseInt(document.getElementById("edtdia").value);
+            document.getElementById("dia").innerHTML = dia;
+
+            //alert('Dia: ' + dia);
+
+            //Verificar se o dia é um número
+            switch (dia) {
+                case 1:
+                    document.getElementById("resultado").innerHTML = "Domingo";
+                    break;
+                case 2:
+                    document.getElementById("resultado").innerHTML = "Segunda-feira";
+                    break;
+                case 3:
+                    document.getElementById("resultado").innerHTML = "Terça-feira";
+                    break;
+                case 4:
+                    document.getElementById("resultado").innerHTML = "Quarta-feira";
+                    break;
+                case 5:
+                    document.getElementById("resultado").innerHTML = "Quinta-feira";
+                    break;
+                case 6:
+                    document.getElementById("resultado").innerHTML = "Sexta-feira";
+                    break;
+                case 7:
+                    document.getElementById("resultado").innerHTML = "Sábado";
+                    break;
+                default:
+                    document.getElementById("resultado").innerHTML = "Dia inválido";
+                    break;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

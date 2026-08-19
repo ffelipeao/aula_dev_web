@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Currículo e perfil profissional de Ana Silva">
+    <title>Ana Silva | Perfil Profissional</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+    <header class="cabecalho">
+        <img
+            class="foto-perfil"
+            src="imagens/perfil.svg"
+            alt="Foto de perfil de Ana Silva"
+        >
+
+        <div class="apresentacao">
+            <p class="saudacao">Olá, eu sou</p>
+            <h1>Ana Silva</h1>
+            <p class="cargo">Estudante de Desenvolvimento Web</p>
+            <p>Rio de Janeiro, RJ</p>
+        </div>
+    </header>
+
+    <nav class="menu" aria-label="Navegação principal">
+        <a href="#sobre">Sobre</a>
+        <a href="#formacao">Formação</a>
+        <a href="#experiencia">Projetos</a>
+        <a href="#habilidades">Habilidades</a>
+        <a href="#contato">Contato</a>
+    </nav>
+
+    <main class="conteudo">
+        <section id="sobre" class="cartao">
+            <h2>Sobre mim</h2>
+            <p>
+                Sou estudante de desenvolvimento web e tenho interesse em criar páginas
+                acessíveis, organizadas e fáceis de usar. Busco oportunidades para aprender,
+                colaborar em equipe e desenvolver minha carreira na área de tecnologia.
+            </p>
+        </section>
+
+        <section id="formacao" class="cartao">
+            <h2>Formação acadêmica</h2>
+            <article>
+                <h3>Curso de Desenvolvimento Web</h3>
+                <p class="informacao-secundaria">Universidade Exemplo — 2026</p>
+                <p>HTML5, CSS3, JavaScript e fundamentos do desenvolvimento para web.</p>
+            </article>
+        </section>
+
+        <section id="experiencia" class="cartao">
+            <h2>Experiências e projetos</h2>
+            <article>
+                <h3>Página de perfil profissional</h3>
+                <p class="informacao-secundaria"><time datetime="2026">2026</time></p>
+                <p>
+                    Criação de uma página responsiva com HTML semântico, folhas de estilo
+                    e interatividade com JavaScript.
+                </p>
+            </article>
+        </section>
+
+        <section id="habilidades" class="cartao">
+            <h2>Habilidades</h2>
+            <ul class="lista-habilidades">
+                <li>HTML5</li>
+                <li>CSS3</li>
+                <li>JavaScript</li>
+                <li>Git e GitHub</li>
+                <li>Trabalho em equipe</li>
+            </ul>
+        </section>
+
+        <section id="contato" class="cartao">
+            <h2>Contato</h2>
+            <address>
+                <p>E-mail: <a href="mailto:ana@email.com">ana@email.com</a></p>
+                <p>
+                    LinkedIn:
+                    <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">
+                        linkedin.com/in/ana-silva
+                    </a>
+                </p>
+                <p>
+                    GitHub:
+                    <a href="https://github.com/" target="_blank" rel="noopener noreferrer">
+                        github.com/ana-silva
+                    </a>
+                </p>
+            </address>
+
+            <button id="botao-contato" type="button">Exibir mensagem</button>
+            <p id="mensagem-contato" class="mensagem" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <p>&copy; <span id="ano-atual"></span> Ana Silva. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

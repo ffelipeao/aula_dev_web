@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" role="img" aria-labelledby="title description">
+  <title id="title">Imagem provisória de perfil</title>
+  <desc id="description">Silhueta de uma pessoa sobre um fundo azul-claro</desc>
+  <rect width="400" height="400" fill="#dbeafe"/>
+  <circle cx="200" cy="145" r="78" fill="#2563eb"/>
+  <path d="M65 400c5-98 59-158 135-158s130 60 135 158H65z" fill="#2563eb"/>
+</svg>

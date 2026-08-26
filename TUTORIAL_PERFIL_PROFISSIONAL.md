@@ -95,22 +95,17 @@ Abra o arquivo `index.html` e insira o código abaixo:
             </p>
         </section>
 
-        <!-- Cria a seção de formação acadêmica -->
         <section id="formacao" class="cartao">
             <h2>Formação acadêmica</h2>
 
             <!-- Representa um curso que pode ser entendido de forma independente -->
             <article>
-                <!-- Informa o nome do curso -->
                 <h3>Curso de Desenvolvimento Web</h3>
-                <!-- Informa a instituição e o ano -->
                 <p>Universidade Exemplo — 2026</p>
-                <!-- Resume os conteúdos estudados -->
                 <p>Conteúdos: HTML5, CSS3, JavaScript e fundamentos da web.</p>
             </article>
         </section>
 
-        <!-- Cria a seção de experiências e projetos -->
         <section id="experiencia" class="cartao">
             <h2>Experiências e projetos</h2>
 
@@ -125,7 +120,6 @@ Abra o arquivo `index.html` e insira o código abaixo:
             </article>
         </section>
 
-        <!-- Cria a seção que lista as habilidades -->
         <section id="habilidades" class="cartao">
             <h2>Habilidades</h2>
             <!-- Cria uma lista não ordenada; cada li representa uma habilidade -->
@@ -138,7 +132,6 @@ Abra o arquivo `index.html` e insira o código abaixo:
             </ul>
         </section>
 
-        <!-- Cria a seção com os meios de contato -->
         <section id="contato" class="cartao">
             <h2>Contato</h2>
             <!-- Identifica semanticamente o bloco de informações de contato -->
@@ -154,7 +147,6 @@ Abra o arquivo `index.html` e insira o código abaixo:
                 </p>
                 <p>
                     GitHub:
-                    <!-- Abre o GitHub em outra aba com a mesma proteção de segurança -->
                     <a href="https://github.com/" target="_blank" rel="noopener noreferrer">
                         github.com/ana-silva
                     </a>
@@ -168,7 +160,6 @@ Abra o arquivo `index.html` e insira o código abaixo:
         </section>
     </main>
 
-    <!-- Cria o rodapé da página -->
     <footer class="rodape">
         <!-- O JavaScript preencherá o span com o ano atual -->
         <p>&copy; <span id="ano-atual"></span> Ana Silva. Todos os direitos reservados.</p>
@@ -177,7 +168,6 @@ Abra o arquivo `index.html` e insira o código abaixo:
     <!-- Conecta o arquivo JavaScript ao final da página -->
     <script src="js/script.js"></script>
 </body>
-<!-- Encerra o documento HTML -->
 </html>
 ```
 

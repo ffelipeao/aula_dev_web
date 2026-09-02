@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo de HTML e CSS externo</title>
+
+    <!-- Conecta este HTML ao arquivo externo estilo.css -->
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+    <!-- header cria o cabeçalho da página -->
+    <header>
+        <h1>Minha página de estudos</h1>
+        <p>Exemplo básico de HTML com CSS externo</p>
+    </header>
+
+    <!-- main reúne o conteúdo principal -->
+    <main>
+        <section>
+            <h2>Conteúdos</h2>
+
+            <!-- ul cria uma lista com marcadores -->
+            <ul>
+                <li>HTML</li>
+                <li>CSS</li>
+                <li>JavaScript</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Formulário de cadastro</h2>
+
+            <!-- form agrupa os campos; este exemplo não salva os dados -->
+            <form>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="curso">Curso:</label>
+                <select id="curso" name="curso">
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="javascript">JavaScript</option>
+                </select>
+
+                <label for="mensagem">Mensagem:</label>
+                <textarea id="mensagem" name="mensagem" rows="4"></textarea>
+
+                <button type="submit">Enviar</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Horários das aulas</h2>
+
+            <!-- table organiza dados em linhas e colunas -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dia</th>
+                        <th>Conteúdo</th>
+                        <th>Horário</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Segunda-feira</td>
+                        <td>HTML</td>
+                        <td>19h</td>
+                    </tr>
+                    <tr>
+                        <td>Quarta-feira</td>
+                        <td>CSS</td>
+                        <td>19h</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- footer cria o rodapé -->
+    <footer>
+        <p>Exemplo criado para a aula de desenvolvimento web.</p>
+    </footer>
+</body>
+</html>

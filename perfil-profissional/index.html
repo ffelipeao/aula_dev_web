@@ -1,20 +1,32 @@
+<!-- Informa ao navegador que o documento utiliza HTML5 -->
 <!DOCTYPE html>
+<!-- Define o português do Brasil como idioma principal -->
 <html lang="pt-BR">
+<!-- Contém as configurações e informações não visíveis da página -->
 <head>
+    <!-- Permite exibir corretamente acentos e caracteres especiais -->
     <meta charset="UTF-8">
+    <!-- Adapta a largura da página à tela de celulares e tablets -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fornece aos mecanismos de busca uma descrição da página -->
     <meta name="description" content="Currículo e perfil profissional de Ana Silva">
+    <!-- Define o texto exibido na aba do navegador -->
     <title>Ana Silva | Perfil Profissional</title>
+    <!-- Carrega o arquivo responsável pela aparência da página -->
     <link rel="stylesheet" href="css/estilo.css">
 </head>
+<!-- Inicia o conteúdo visível da página -->
 <body>
+    <!-- Agrupa a foto e as principais informações profissionais -->
     <header class="cabecalho">
+        <!-- Exibe a foto; alt fornece uma descrição para leitores de tela -->
         <img
             class="foto-perfil"
             src="imagens/perfil.svg"
             alt="Foto de perfil de Ana Silva"
         >
 
+        <!-- Agrupa os textos de apresentação -->
         <div class="apresentacao">
             <p class="saudacao">Olá, eu sou</p>
             <h1>Ana Silva</h1>
@@ -23,6 +35,7 @@
         </div>
     </header>
 
+    <!-- Cria o menu; cada link leva à seção indicada depois do símbolo # -->
     <nav class="menu" aria-label="Navegação principal">
         <a href="#sobre">Sobre</a>
         <a href="#formacao">Formação</a>
@@ -31,7 +44,9 @@
         <a href="#contato">Contato</a>
     </nav>
 
+    <!-- Delimita o conteúdo principal do documento -->
     <main class="conteudo">
+        <!-- Cria uma seção; seu id também funciona como destino do menu -->
         <section id="sobre" class="cartao">
             <h2>Sobre mim</h2>
             <p>
@@ -43,6 +58,7 @@
 
         <section id="formacao" class="cartao">
             <h2>Formação acadêmica</h2>
+            <!-- Representa uma informação que pode ser compreendida de forma independente -->
             <article>
                 <h3>Curso de Desenvolvimento Web</h3>
                 <p class="informacao-secundaria">Universidade Exemplo — 2026</p>
@@ -54,6 +70,7 @@
             <h2>Experiências e projetos</h2>
             <article>
                 <h3>Página de perfil profissional</h3>
+                <!-- time identifica o ano como uma informação temporal -->
                 <p class="informacao-secundaria"><time datetime="2026">2026</time></p>
                 <p>
                     Criação de uma página responsiva com HTML semântico, folhas de estilo
@@ -64,6 +81,7 @@
 
         <section id="habilidades" class="cartao">
             <h2>Habilidades</h2>
+            <!-- Cria uma lista não ordenada de habilidades -->
             <ul class="lista-habilidades">
                 <li>HTML5</li>
                 <li>CSS3</li>
@@ -75,10 +93,13 @@
 
         <section id="contato" class="cartao">
             <h2>Contato</h2>
+            <!-- Identifica semanticamente as informações de contato -->
             <address>
+                <!-- mailto solicita a abertura do aplicativo de e-mail -->
                 <p>E-mail: <a href="mailto:ana@email.com">ana@email.com</a></p>
                 <p>
                     LinkedIn:
+                    <!-- Abre o site em outra aba e protege o acesso à página original -->
                     <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">
                         linkedin.com/in/ana-silva
                     </a>
@@ -91,15 +112,19 @@
                 </p>
             </address>
 
+            <!-- O id permite que o JavaScript encontre e controle o botão -->
             <button id="botao-contato" type="button">Exibir mensagem</button>
+            <!-- aria-live faz leitores de tela anunciarem a mensagem inserida -->
             <p id="mensagem-contato" class="mensagem" aria-live="polite"></p>
         </section>
     </main>
 
     <footer class="rodape">
+        <!-- O JavaScript preencherá o span com o ano atual -->
         <p>&copy; <span id="ano-atual"></span> Ana Silva. Todos os direitos reservados.</p>
     </footer>
 
+    <!-- Carrega o JavaScript após o restante do conteúdo -->
     <script src="js/script.js"></script>
 </body>
 </html>

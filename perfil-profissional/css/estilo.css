@@ -1,3 +1,4 @@
+/* Armazena cores e sombras em variáveis reutilizáveis */
 :root {
     --cor-principal: #2563eb;
     --cor-principal-escura: #1e3a8a;
@@ -9,46 +10,51 @@
     --sombra: 0 10px 30px rgba(15, 23, 42, 0.1);
 }
 
+/* Faz o tamanho declarado incluir preenchimentos e bordas */
 * {
     box-sizing: border-box;
 }
 
+/* Suaviza a rolagem realizada pelos links do menu */
 html {
     scroll-behavior: smooth;
 }
 
+/* Define a aparência geral da página */
 body {
-    margin: 0;
-    color: var(--cor-texto);
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1.6;
-    background-color: var(--cor-fundo);
+    margin: 0; /* Remove a margem automática do navegador */
+    color: var(--cor-texto); /* Usa uma variável para definir a cor do texto */
+    font-family: Arial, Helvetica, sans-serif; /* Define a fonte e suas alternativas */
+    line-height: 1.6; /* Aumenta o espaço entre linhas */
+    background-color: var(--cor-fundo); /* Define a cor de fundo */
 }
 
+/* Organiza a foto e a apresentação lado a lado */
 .cabecalho {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 32px;
-    min-height: 330px;
-    padding: 48px 20px;
-    color: #ffffff;
-    background: linear-gradient(135deg, #0f172a, var(--cor-principal-escura));
+    display: flex; /* Ativa o Flexbox */
+    align-items: center; /* Centraliza os itens no eixo vertical */
+    justify-content: center; /* Centraliza os itens no eixo horizontal */
+    gap: 32px; /* Cria espaço entre os itens */
+    min-height: 330px; /* Garante uma altura mínima */
+    padding: 48px 20px; /* Cria espaço interno vertical e horizontal */
+    color: #ffffff; /* Deixa o texto branco */
+    background: linear-gradient(135deg, #0f172a, var(--cor-principal-escura)); /* Cria um degradê */
 }
 
+/* Dimensiona e transforma a foto em um círculo */
 .foto-perfil {
     width: 180px;
     height: 180px;
-    object-fit: cover;
+    object-fit: cover; /* Preenche a área sem distorcer a imagem */
     background-color: #dbeafe;
     border: 6px solid rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.3);
+    border-radius: 50%; /* Arredonda completamente a imagem */
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.3); /* Adiciona profundidade */
 }
 
 .apresentacao h1 {
     margin: 0;
-    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-size: clamp(2.2rem, 5vw, 3.5rem); /* Ajusta o título entre um valor mínimo e máximo */
     line-height: 1.1;
 }
 
@@ -60,8 +66,8 @@ body {
     color: var(--cor-destaque);
     font-size: 1.1rem;
     font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    text-transform: uppercase; /* Converte o texto para letras maiúsculas */
+    letter-spacing: 2px; /* Aumenta o espaço entre as letras */
 }
 
 .cargo {
@@ -69,13 +75,14 @@ body {
     font-weight: bold;
 }
 
+/* Mantém o menu visível no topo durante a rolagem */
 .menu {
-    position: sticky;
-    z-index: 10;
-    top: 0;
+    position: sticky; /* Faz o menu acompanhar a rolagem */
+    z-index: 10; /* Mantém o menu à frente dos demais elementos */
+    top: 0; /* Define o ponto onde o menu ficará preso */
     display: flex;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite quebrar os links em mais de uma linha */
     gap: 6px;
     padding: 12px;
     background-color: rgba(255, 255, 255, 0.96);
@@ -86,28 +93,31 @@ body {
     padding: 8px 13px;
     color: var(--cor-principal-escura);
     font-weight: bold;
-    text-decoration: none;
+    text-decoration: none; /* Remove o sublinhado dos links */
     border-radius: 7px;
-    transition: color 0.2s, background-color 0.2s;
+    transition: color 0.2s, background-color 0.2s; /* Suaviza as mudanças de cor */
 }
 
+/* Altera o link apontado pelo mouse ou selecionado pelo teclado */
 .menu a:hover,
 .menu a:focus {
     color: #ffffff;
     background-color: var(--cor-principal);
-    outline: none;
+    outline: none; /* Remove o contorno-padrão porque o fundo já indica o foco */
 }
 
+/* Limita a largura e centraliza o conteúdo */
 .conteudo {
-    width: min(900px, 92%);
-    margin: 38px auto;
+    width: min(900px, 92%); /* Usa o menor valor entre 900 px e 92% da tela */
+    margin: 38px auto; /* Cria margem vertical e centraliza horizontalmente */
 }
 
+/* Apresenta cada seção como um cartão */
 .cartao {
     margin-bottom: 24px;
     padding: 30px;
     background-color: var(--cor-cartao);
-    border-left: 5px solid var(--cor-principal);
+    border-left: 5px solid var(--cor-principal); /* Cria a faixa colorida lateral */
     border-radius: 12px;
     box-shadow: var(--sombra);
 }
@@ -131,7 +141,7 @@ body {
     flex-wrap: wrap;
     gap: 10px;
     padding: 0;
-    list-style: none;
+    list-style: none; /* Remove os marcadores da lista */
 }
 
 .lista-habilidades li {
@@ -147,17 +157,18 @@ a {
 }
 
 address {
-    font-style: normal;
+    font-style: normal; /* Remove o itálico aplicado automaticamente */
 }
 
+/* Define a aparência e o comportamento visual do botão */
 button {
     padding: 11px 20px;
     color: #ffffff;
     font-size: 1rem;
     font-weight: bold;
-    cursor: pointer;
+    cursor: pointer; /* Exibe o cursor que indica uma área clicável */
     background-color: var(--cor-principal);
-    border: 0;
+    border: 0; /* Remove a borda-padrão */
     border-radius: 7px;
     transition: transform 0.2s, background-color 0.2s;
 }
@@ -165,11 +176,11 @@ button {
 button:hover,
 button:focus {
     background-color: var(--cor-principal-escura);
-    transform: translateY(-2px);
+    transform: translateY(-2px); /* Move o botão levemente para cima */
 }
 
 .mensagem {
-    min-height: 25px;
+    min-height: 25px; /* Reserva espaço antes de a mensagem aparecer */
     color: var(--cor-principal-escura);
     font-weight: bold;
 }
@@ -181,9 +192,10 @@ button:focus {
     background-color: #0f172a;
 }
 
+/* Modifica o layout somente em telas com até 600 px */
 @media (max-width: 600px) {
     .cabecalho {
-        flex-direction: column;
+        flex-direction: column; /* Coloca a foto acima da apresentação */
         gap: 20px;
         text-align: center;
     }

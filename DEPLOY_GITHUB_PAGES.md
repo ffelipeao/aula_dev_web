@@ -54,24 +54,32 @@ Ao finalizar, você verá a página inicial da sua conta no GitHub.
 
 ---
 
-## 2. Configurar sua identificação no Git
+## 2. Preparar o repositório e configurar sua identificação
 
-No terminal, configure o nome e o e-mail que aparecerão nos seus commits:
+Primeiro, transforme a pasta atual em um repositório Git:
 
 ```bash
-git config --global user.name "Seu Nome"
-git config --global user.email "seu-email@exemplo.com"
+# Cria um repositório Git somente na pasta atual
+git init
+```
+
+Agora configure o nome e o e-mail que aparecerão nos commits deste projeto:
+
+```bash
+git config --local user.name "Seu Nome"
+git config --local user.email "seu-email@exemplo.com"
 ```
 
 Use, de preferência, o mesmo e-mail cadastrado no GitHub. Para conferir:
 
 ```bash
-git config --global user.name
-git config --global user.email
+git config --local user.name
+git config --local user.email
 ```
 
 > [!NOTE]
-> Essa configuração normalmente precisa ser feita apenas uma vez em cada computador.
+> A opção `--local` salva a identificação somente neste repositório. Ela não altera
+> a configuração de outros projetos existentes no computador.
 
 ---
 
@@ -100,9 +108,6 @@ https://github.com/SEU-USUARIO/meu-site.git
 No terminal, confirme que você está dentro da pasta do projeto. Em seguida, execute **um comando por vez**:
 
 ```bash
-# Cria um repositório Git na pasta atual
-git init
-
 # Define main como o nome da branch principal
 git branch -M main
 

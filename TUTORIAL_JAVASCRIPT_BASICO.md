@@ -215,7 +215,19 @@ if (nota >= 7) {
 
 As chaves `{ }` delimitam o bloco de comandos de cada condição.
 
-## 10. Repetições com for e while
+## 10.1 Interpolação de Strings em JavaScript
+
+A interpolação de strings permite inserir variáveis ou expressões diretamente dentro de um texto, tornando o código mais simples e legível.
+No JavaScript, utilizamos crases (`) para delimitar o texto e ${} para inserir os valores das variáveis.
+
+Exemplo:
+
+```javascript
+let nome = "Felipe";
+return `Olá, ${nome}!`;
+```
+
+## 10.2 Repetições com for e while
 
 Uma estrutura de repetição executa o mesmo bloco várias vezes.
 

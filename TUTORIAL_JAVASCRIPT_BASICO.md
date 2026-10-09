@@ -117,6 +117,54 @@ Prefira `const` quando o valor não precisar ser reatribuído e use `let` quando
 ele precisar mudar. Evite `var` em códigos novos, pois `let` e `const` possuem
 regras de escopo mais claras.
 
+
+# 5.1 Diferença entre `var`, `let` e `const` em JavaScript
+
+No JavaScript, utilizamos `var`, `let` e `const` para declarar variáveis. A principal diferença está na possibilidade de alterar seus valores e no escopo em que podem ser utilizadas.
+
+## 5.1.1. Tipos de declaração
+
+- **`var`**: forma mais antiga de declarar variáveis. Permite alterar o valor e declarar novamente a mesma variável. Possui escopo de função ou global.
+
+- **`let`**: forma moderna de declarar variáveis. Permite alterar o valor, mas não permite declarar novamente a mesma variável no mesmo escopo. Possui escopo de bloco `{}`.
+
+- **`const`**: utilizada para declarar variáveis que não podem ser reatribuídas. Deve receber um valor no momento da declaração e possui escopo de bloco `{}`.
+
+## 5.1.2. Exemplos práticos
+
+```javascript
+// Utilizando var
+var nome = "João";
+nome = "Maria"; // Permitido
+
+// Utilizando let
+let idade = 20;
+idade = 21; // Permitido
+
+// Utilizando const
+const PI = 3.14;
+PI = 3.15; // Erro: não permite reatribuição
+```
+
+## 5.1.3. Resumo das diferenças
+
+| Característica | `var` | `let` | `const` |
+|---|---|---|---|
+| Permite reatribuir valor | Sim | Sim | Não |
+| Permite redeclarar no mesmo escopo | Sim | Não | Não |
+| Escopo de bloco | Não | Sim | Sim |
+| Exige valor inicial | Não | Não | Sim |
+
+## 5.1.4. Boas práticas
+
+- Utilize **`const`** como padrão quando não precisar reatribuir o valor.
+- Utilize **`let`** quando o valor da variável precisar mudar.
+- Evite **`var`** em códigos modernos, pois seu comportamento de escopo pode causar problemas.
+
+> **Observação:** objetos e arrays declarados com `const` ainda podem ter seus conteúdos modificados. O que não pode ser alterado é a referência armazenada na variável.
+
+
+
 ## 6. Tipos básicos de dados
 
 ```javascript

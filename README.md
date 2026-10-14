@@ -10,3 +10,8 @@ Novas atividades e materiais serão incluídos a cada semana de aula, acompanhan
 
 - **Aula 1:** apresentação dos componentes HTML, CSS e JavaScript.
 
+## Tutoriais
+
+- [HTML e JavaScript básico](2-TUTORIAL_JAVASCRIPT_BASICO.md)
+- [HTML e PHP básico](5-TUTORIAL_PHP_BASICO.md)
+

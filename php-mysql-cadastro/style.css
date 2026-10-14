@@ -1,0 +1,46 @@
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    background: #f2f4f7;
+    color: #202938;
+}
+main {
+    max-width: 900px;
+    margin: auto;
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+}
+a { color: #174e9b; margin-right: 12px; }
+label { display: block; margin-top: 16px; font-weight: bold; }
+input:not([type="hidden"]) {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    padding: 10px;
+    font: inherit;
+    border: 1px solid #687587;
+    border-radius: 4px;
+}
+small { display: block; }
+button {
+    margin: 20px 12px 0 0;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 4px;
+    background: #174e9b;
+    color: white;
+    font: inherit;
+    cursor: pointer;
+}
+.perigo { background: #a51e2c; }
+.mensagem { padding: 12px; background: #e0f2e7; }
+.erros { padding: 16px 32px; background: #ffe8e8; }
+.tabela { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+caption { text-align: left; font-weight: bold; margin-bottom: 8px; }
+th, td { padding: 10px; border: 1px solid #ccd3dc; text-align: left; }
+th { background: #edf1f6; }

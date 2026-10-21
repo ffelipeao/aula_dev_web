@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cadastro de alunos</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f4f8; margin: 0; padding: 24px; }
+        main { max-width: 440px; margin: 32px auto; padding: 24px; background: white; border-radius: 12px; }
+        h1 { color: #16324f; }
+        label { display: block; margin-top: 16px; }
+        input, button { box-sizing: border-box; width: 100%; padding: 12px; margin-top: 6px; font: inherit; }
+        input { border: 1px solid #8795a5; border-radius: 6px; }
+        button { margin-top: 24px; background: #185abc; color: white; border: 0; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Cadastro de alunos</h1>
+        <p>Preencha os dados para cadastrar um aluno.</p>
+        <form action="salvar.php" method="post">
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" name="nome" maxlength="100" required>
+
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" maxlength="150" required>
+
+            <label for="curso">Curso</label>
+            <input type="text" id="curso" name="curso" maxlength="100" required>
+
+            <button type="submit">Cadastrar aluno</button>
+        </form>
+    </main>
+</body>
+</html>

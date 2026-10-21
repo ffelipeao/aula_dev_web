@@ -2,7 +2,7 @@
 
 ## Objetivo da aula
 
-Construir um formulário HTML que envia nome, e-mail e curso para `salvar.php` pelo método POST. O PHP recebe os dados e executa um INSERT na tabela `alunos`. Ao final, vamos conferir o cadastro no phpMyAdmin.
+Construir um formulário HTML que envia nome, e-mail e curso para `salvar.php` pelo método POST. O PHP recebe os dados e executa um INSERT na tabela `alunos`. Depois, vamos criar uma tela PHP para listar os alunos cadastrados em uma tabela HTML. O phpMyAdmin tamb?m poder? ser usado para conferir os registros.
 
 Pré-requisitos: XAMPP instalado, editor de texto e navegador. Não é necessário instalar bibliotecas nem usar terminal.
 
@@ -11,7 +11,7 @@ Fluxo da aplicação:
 ```text
 index.html → POST → salvar.php → conexao.php → banco escola / tabela alunos
                        ↓ depois de gravar
-                  sucesso.html
+                  sucesso.html ? listar.php ? SELECT na tabela alunos
 ```
 
 O HTML apresenta o formulário, o Apache executa o PHP e o MySQL armazena os dados. O phpMyAdmin é uma interface para administrar o banco. O XAMPP inclui MariaDB, compatível com o SQL deste exercício, embora o painel use o nome MySQL. Veja a [documentação oficial do XAMPP](https://www.apachefriends.org/faq_windows).
@@ -38,6 +38,7 @@ php-mysql-alunos/
 ├── conexao.php
 ├── salvar.php
 ├── sucesso.html
+├── listar.php
 └── banco.sql
 ```
 
@@ -114,6 +115,7 @@ Na lateral esquerda, abra o banco **escola** e depois a tabela **alunos**. Se ne
 
             <button type="submit">Cadastrar aluno</button>
         </form>
+        <p><a href="listar.php">Ver alunos cadastrados</a></p>
     </main>
 </body>
 </html>
@@ -175,23 +177,9 @@ $nome = $_POST['nome'] ?? '';
 $email = $_POST['email'] ?? '';
 $curso = $_POST['curso'] ?? '';
 
-if (!is_string($nome) || !is_string($email) || !is_string($curso)) {
-    http_response_code(400);
-    exit('Dados inválidos. Volte ao formulário.');
-}
-
-$nome = trim($nome);
-$email = trim($email);
-$curso = trim($curso);
-
-// A validação do PHP também é necessária: o HTML pode ser contornado.
-$tamanhoNome = preg_match_all('/./us', $nome);
-$tamanhoCurso = preg_match_all('/./us', $curso);
-if ($tamanhoNome === false || $tamanhoNome < 1 || $tamanhoNome > 100
-    || $tamanhoCurso === false || $tamanhoCurso < 1 || $tamanhoCurso > 100
-    || strlen($email) > 150 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    exit('Confira os campos: nome e curso são obrigatórios (até 100 caracteres) e o e-mail deve ser válido (até 150).');
+// Verificação simples dos campos obrigatórios.
+if (trim($nome) === '' || trim($email) === '' || trim($curso) === '') {
+    exit('Preencha todos os campos. Volte ao formulário.');
 }
 
 require __DIR__ . '/conexao.php';
@@ -218,7 +206,7 @@ exit;
 Leia o arquivo com a turma em quatro partes:
 
 1. **Receber:** `$_POST['nome']` acessa o valor enviado pelo campo `name="nome"`. `?? ''` fornece texto vazio se o campo estiver ausente.
-2. **Validar:** `trim` remove espaços das extremidades; o PHP verifica campos obrigatórios, limites e formato do e-mail.
+2. **Validar:** `trim` remove espaços das extremidades; o PHP verifica os campos obrigatórios. No navegador, `required`, `maxlength` e `type="email"` orientam o preenchimento. A validação é reduzida para focar no cadastro e na consulta nesta aula local.
 3. **Gravar:** `INSERT INTO alunos (nome, email, curso)` indica a tabela e as colunas. O ID não é enviado porque o banco o gera.
 4. **Responder:** após salvar, o PHP redireciona para a página de sucesso. Atualizar essa página não envia novamente o formulário.
 
@@ -237,12 +225,89 @@ Leia o arquivo com a turma em quatro partes:
 <body>
     <h1>Aluno cadastrado com sucesso!</h1>
     <p>O cadastro foi gravado no banco de dados.</p>
-    <a href="index.html">Cadastrar outro aluno</a>
+    <p><a href="index.html">Cadastrar outro aluno</a></p>
+    <p><a href="listar.php">Ver alunos cadastrados</a></p>
 </body>
 </html>
 ```
 
-## 7. Executar a demonstração
+## 7. Criar a tela de listagem: listar.php
+
+Crie `listar.php` na mesma pasta dos outros arquivos. A página reutiliza a conexão, consulta os registros e monta uma tabela HTML.
+
+```php
+<?php
+require __DIR__ . '/conexao.php';
+
+// Lista primeiro os cadastros mais recentes.
+$sql = 'SELECT id, nome, email, curso FROM alunos ORDER BY id DESC';
+$resultado = $conexao->query($sql);
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alunos cadastrados</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f4f8; padding: 24px; }
+        main { max-width: 900px; margin: auto; padding: 24px; background: white; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #8795a5; padding: 12px; text-align: left; }
+        th { background: #e8eef5; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Alunos cadastrados</h1>
+        <p><a href="index.html">Cadastrar aluno</a></p>
+
+        <?php if ($resultado->num_rows === 0): ?>
+            <p>Nenhum aluno cadastrado ainda.</p>
+        <?php else: ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Curso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($aluno = $resultado->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= $aluno['id'] ?></td>
+                            <td><?= htmlspecialchars($aluno['nome'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td><?= htmlspecialchars($aluno['email'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td><?= htmlspecialchars($aluno['curso'], ENT_QUOTES, 'UTF-8') ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </main>
+</body>
+</html>
+<?php
+$conexao->close();
+?>
+```
+
+Leia o código em etapas:
+
+1. `require` carrega `conexao.php`, assim como no cadastro.
+2. `SELECT` busca as quatro colunas. `ORDER BY id DESC` mostra os maiores IDs primeiro, começando pelos cadastros mais recentes.
+3. `query($sql)` executa a consulta. Como o SQL é fixo e não recebe dados do usuário, usamos `query` diretamente.
+4. `num_rows` informa quantos registros foram encontrados. Se for zero, mostramos a mensagem de lista vazia.
+5. `while` repete uma linha da tabela para cada aluno. `fetch_assoc()` lê o próximo registro como um array com chaves como `nome`, `email` e `curso`. Quando não há mais registros, o laço termina.
+6. `<?= ... ?>` é uma forma curta de escrever `<?php echo ...; ?>`. `htmlspecialchars` exibe os textos como conteúdo, evitando que sejam interpretados como HTML.
+
+`if (...): ... else: ... endif;` e `while (...): ... endwhile;` são formas de escrever condições e repetições quando misturamos PHP com HTML.
+
+O PHP monta a tabela no servidor e envia o HTML pronto ao navegador. Os dados são consultados novamente sempre que você abre ou atualiza essa página.
+
+## 8. Executar a demonstração
 
 1. Acesse **http://localhost/php-mysql-alunos/index.html**.
 2. Preencha, por exemplo:
@@ -255,9 +320,11 @@ Leia o arquivo com a turma em quatro partes:
 
 3. Clique em **Cadastrar aluno**.
 4. Confira a mensagem **Aluno cadastrado com sucesso!**.
-5. Abra o phpMyAdmin, selecione **escola → alunos → Visualizar** (ou **Procurar**).
-6. Veja a nova linha e o ID gerado automaticamente.
-7. Cadastre outro aluno e confira o próximo ID.
+5. Clique em **Ver alunos cadastrados** e confira a tabela com ID, nome, e-mail e curso.
+6. Clique em **Cadastrar aluno**, cadastre outra pessoa e volte à listagem. O novo registro aparecerá primeiro.
+7. Se quiser conferir pelo banco, abra o phpMyAdmin e selecione **escola → alunos → Visualizar** (ou **Procurar**).
+
+Acesse também **http://localhost/php-mysql-alunos/listar.php** diretamente. Antes do primeiro cadastro, confira a mensagem **Nenhum aluno cadastrado ainda.**
 
 Para consultar usando SQL, selecione o banco `escola`, abra a aba **SQL** e execute:
 
@@ -267,9 +334,9 @@ SELECT id, nome, email, curso FROM alunos ORDER BY id DESC;
 
 Abra pelo endereço `http://localhost/...`, não por duplo clique no arquivo nem pelo Live Server do editor: o PHP precisa ser executado pelo Apache. Esta aplicação também não funciona no GitHub Pages, que não executa PHP nem hospeda esse banco.
 
-O exemplo permite repetir um e-mail: cada envio válido cria um novo aluno. Não há listagem, edição ou exclusão nesta primeira atividade.
+O exemplo permite repetir um e-mail: cada envio válido cria um novo aluno. A atividade inclui cadastro e listagem; edição e exclusão podem ser trabalhadas em outra aula.
 
-## 8. Problemas comuns
+## 9. Problemas comuns
 
 | Problema | O que conferir |
 | --- | --- |
@@ -279,19 +346,21 @@ O exemplo permite repetir um e-mail: cada envio válido cria um novo aluno. Não
 | Não foi possível salvar | Confirme que `escola.alunos` existe com os campos do script. Consulte o log de erros do Apache para o detalhe técnico. |
 | `Class "mysqli" not found` | Use o PHP do XAMPP e confira se a extensão mysqli está habilitada nele. |
 | O código PHP aparece como texto | Confirme a extensão `.php` e o acesso via Apache em `localhost`. |
-| O formulário acusa dados inválidos | Preencha nome e curso e use um e-mail como `ana@example.com`, respeitando os limites. |
+| A mensagem pede para preencher todos os campos | Preencha nome, e-mail e curso antes de enviar. |
+| A listagem aparece vazia | Cadastre um aluno e confira se `salvar.php` e `listar.php` usam o mesmo `conexao.php`. |
 | Acesso direto a `salvar.php` mostra uma mensagem | Esse arquivo aceita POST. Abra `index.html` e use o botão do formulário. |
 | Apache ou MySQL não inicia | Consulte o log do painel para identificar conflitos de porta com outros serviços. |
 
-## 9. Exercício de fixação
+## 10. Exercício de fixação
 
-Acrescente o campo **turma** ao cadastro. Os alunos deverão alterar a tabela, o formulário e o PHP:
+Acrescente o campo **turma** ao cadastro. Os alunos deverão alterar a tabela, o formulário, a gravação e a listagem:
 
 1. No phpMyAdmin, com `escola` selecionado, execute `ALTER TABLE alunos ADD turma VARCHAR(50) NOT NULL DEFAULT '';`.
 2. Adicione ao formulário um campo com `name="turma"` e limite de 50 caracteres.
 3. Receba `$_POST['turma']` e valide o conteúdo no PHP.
 4. Inclua `turma` na lista de colunas do INSERT e acrescente um quarto `?`.
 5. Use `bind_param('ssss', $nome, $email, $curso, $turma)`.
-6. Cadastre um aluno e confira o resultado no phpMyAdmin.
+6. Em `listar.php`, acrescente `turma` ao SELECT, crie o cabe?alho **Turma** e exiba o valor com `htmlspecialchars`.
+7. Cadastre um aluno e confira a turma na tela de listagem.
 
 Pergunta para fechar a aula: por que colocar apenas o campo no HTML não faz o valor ser salvo no banco?

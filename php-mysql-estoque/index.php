@@ -98,8 +98,7 @@ $titulo = match ($tela) {
                 <?php if ($erro !== '') { ?>
                     <div class="alert alert-danger" role="alert"><?= /* Exibe texto seguro no HTML. */ escapar($erro) ?></div>
                 <?php } ?>
-                <form method="post" action="operacoes.php">
-                    <input type="hidden" name="acao" value="entrar">
+                <form method="post" action="login.php">
                     <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">E-mail</label>

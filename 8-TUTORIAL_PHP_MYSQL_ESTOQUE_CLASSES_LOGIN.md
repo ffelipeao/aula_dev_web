@@ -22,6 +22,7 @@ php-mysql-estoque/
 ├── banco.sql
 ├── index.php
 ├── operacoes.php
+├── login.php
 └── classes/
     ├── Conexao.php
     ├── Login.php
@@ -35,9 +36,10 @@ php-mysql-estoque/
 | `classes/Login.php` | Entrar, consultar a sessão, proteger acesso e sair |
 | `classes/Cadastro.php` | Reunir todas as operações SQL de produtos |
 | `index.php` | Consultar os dados e mostrar login, lista, cadastro/edição e modal |
-| `operacoes.php` | Receber os formulários POST de login, saída, gravação e exclusão |
+| `operacoes.php` | Receber os formulários POST de saída, gravação e exclusão |
+| `login.php` | Receber e processar o formulário de autenticação |
 
-As telas, o cabeçalho e o rodapé ficam no `index.php`. O arquivo intermediário `operacoes.php` recebe os formulários e executa as operações. As três classes ficam separadas para destacar suas responsabilidades. Não usaremos framework ou Composer.
+As telas, o cabeçalho e o rodapé ficam no `index.php`. O arquivo intermediário `operacoes.php` recebe as operações de manutenção e saída. O `login.php` processa a autenticação separadamente. As três classes ficam separadas para destacar suas responsabilidades. Não usaremos framework ou Composer.
 
 ## 2. Preparar o XAMPP
 
@@ -289,7 +291,7 @@ Após autenticar, `session_regenerate_id(true)` renova o identificador da sessã
 
 Esconder botões não protege operações. A página também chamará `exigirLogin()` antes de salvar ou excluir.
 
-**Ponto de parada para testar o login:** depois de copiar o `index.php` da etapa 7, abra `index.php?tela=login`. Tente uma senha errada, entre com **admin@estoque.local / Aula@123**, atualize a página e clique em **Sair**. O nome deve permanecer após atualizar e desaparecer depois de sair. Faça esses testes antes de explorar as operações de produtos.
+**Ponto de parada para testar o login:** depois de copiar o `index.php` e o `login.php` da etapa 7, abra `index.php?tela=login`. Tente uma senha errada, entre com **admin@estoque.local / Aula@123**, atualize a página e clique em **Sair**. O nome deve permanecer após atualizar e desaparecer depois de sair. Faça esses testes antes de explorar as operações de produtos.
 
 ## 6. Aula 2 — uma classe com todas as operações de produtos
 
@@ -378,7 +380,7 @@ Os valores de `execute()` seguem a ordem dos `?`. No UPDATE, o ID é o último. 
 
 ## 7. Telas e arquivo intermediário de operações
 
-Crie os dois arquivos abaixo. O `index.php` substitui o teste temporário de conexão e exibe as telas. O `operacoes.php` recebe os dados enviados pelos formulários. Para explicar em sala, comece pelo formulário de login e acompanhe seu envio até o arquivo intermediário.
+Crie os três arquivos abaixo. O `index.php` substitui o teste temporário de conexão e exibe as telas. O `login.php` recebe o formulário de autenticação. O `operacoes.php` recebe os formulários de saída e manutenção de produtos. Para explicar em sala, comece pelo formulário de login e acompanhe seu envio até o arquivo intermediário.
 
 ### Como a página escolhe o que fazer
 
@@ -391,9 +393,9 @@ O parâmetro GET `tela` escolhe o conteúdo exibido:
 | `index.php?tela=cadastro` | Novo produto, com login obrigatório |
 | `index.php?tela=cadastro&id=1` | Mesmo formulário preenchido para edição |
 
-O ID `1` é um exemplo: use um ID existente. Os formulários enviam os dados para `operacoes.php`, com um campo oculto `acao` por POST, com um destes valores: `entrar`, `sair`, `salvar` ou `excluir`.
+O ID `1` é um exemplo: use um ID existente. O formulário de login envia e-mail, senha e token por POST para `login.php`. Os demais formulários enviam os dados para `operacoes.php`, com um campo oculto `acao`: `sair`, `salvar` ou `excluir`.
 
-O `index.php` inicia a sessão, consulta os dados necessários e monta o HTML. O `operacoes.php` inicia a sessão, confere o login e o token, executa a operação solicitada e redireciona para `index.php`. Ele não monta telas. Sua função `redirecionar()` reúne `header()` e `exit`. Cada arquivo carrega as classes e abre sua conexão, pois são executados em requisições diferentes.
+O `index.php` inicia a sessão, consulta os dados necessários e monta o HTML. O `login.php` verifica as credenciais e registra o usuário na sessão. O `operacoes.php` confere o login e o token, executa a operação solicitada e redireciona para `index.php`. Ele não monta telas. Sua função `redirecionar()` reúne `header()` e `exit`. Cada arquivo carrega as classes e abre sua conexão, pois são executados em requisições diferentes.
 
 ### Bootstrap
 
@@ -505,8 +507,7 @@ $titulo = match ($tela) {
                 <?php if ($erro !== '') { ?>
                     <div class="alert alert-danger" role="alert"><?= /* Exibe texto seguro no HTML. */ escapar($erro) ?></div>
                 <?php } ?>
-                <form method="post" action="operacoes.php">
-                    <input type="hidden" name="acao" value="entrar">
+                <form method="post" action="login.php">
                     <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">E-mail</label>
@@ -642,9 +643,62 @@ document.getElementById('modalExcluir').addEventListener('show.bs.modal', functi
 </html>
 ```
 
+### `login.php`
+
+Este arquivo recebe somente o formulário de autenticação. A tela continua em `index.php?tela=login`; a classe `Login` continua responsável pela consulta e pela verificação da senha.
+
+```php
+<?php
+// Recupera a sessão para conferir o formulário e registrar o usuário.
+session_start();
+
+// Aceita somente o envio do formulário de login.
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST');
+    http_response_code(405);
+    exit('Envie os dados pelo formulário de login.');
+}
+
+// Confere se o formulário pertence à sessão atual.
+$token = $_POST['token'] ?? '';
+if (!isset($_SESSION['token']) || !is_string($token)
+    || !hash_equals($_SESSION['token'], $token)) {
+    http_response_code(403);
+    exit('Formulário inválido. Volte e atualize a página.');
+}
+
+// Carrega apenas as classes necessárias à autenticação.
+require_once __DIR__ . '/classes/Conexao.php';
+require_once __DIR__ . '/classes/Login.php';
+
+// Abre a conexão e a entrega ao objeto responsável pelo login.
+$pdo = (new Conexao())->conectar();
+$login = new Login($pdo);
+
+// Retira os espaços das extremidades do e-mail informado.
+$email = trim($_POST['email'] ?? '');
+
+// Confere as credenciais e grava a identidade na sessão quando corretas.
+if ($login->entrar($email, $_POST['senha'] ?? '')) {
+    // Após autenticar, abre a listagem com as ações de manutenção.
+    header('Location: index.php');
+    exit;
+}
+
+// Guarda somente o erro e o e-mail para o retorno; não guarda a senha.
+$_SESSION['erro_login'] = 'E-mail ou senha incorretos.';
+$_SESSION['email_login'] = $email;
+
+// Retorna ao formulário para permitir uma nova tentativa.
+header('Location: index.php?tela=login');
+exit;
+```
+
+O visitante pode enviar esse formulário. O arquivo exige POST e token válido, chama `Login::entrar()` e redireciona para a listagem quando a senha está correta. Se falhar, retorna à tela de login com a mensagem e o e-mail guardados na sessão.
+
 ### `operacoes.php`
 
-Todos os formulários de manutenção e autenticação têm `action="operacoes.php"`. O formulário de busca continua enviando GET para `index.php`, pois só consulta dados.
+Os formulários de manutenção e saída têm `action="operacoes.php"`. A autenticação usa `action="login.php"`. O formulário de busca continua enviando GET para `index.php`, pois só consulta dados.
 
 ```php
 <?php
@@ -678,9 +732,7 @@ function redirecionar(string $pagina = 'index.php'): void
 $acao = $_POST['acao'] ?? '';
 
 // Impede manutenção por visitantes, mesmo que enviem um POST manualmente.
-if ($acao !== 'entrar') {
-    $login->exigirLogin();
-}
+$login->exigirLogin();
 
 // Confere se o token recebido pertence à sessão atual.
 $token = $_POST['token'] ?? '';
@@ -690,18 +742,7 @@ if (!isset($_SESSION['token']) || !is_string($token)
     exit('Formulário inválido. Volte e atualize a página.');
 }
 
-if ($acao === 'entrar') {
-    // Retira espaços do e-mail e confere as credenciais no banco.
-    $email = trim($_POST['email'] ?? '');
-    if ($login->entrar($email, $_POST['senha'] ?? '')) {
-        // Após entrar, volta para a listagem com as ações liberadas.
-        redirecionar();
-    }
-    // Guarda o erro e o e-mail para exibir uma única vez na tela de login.
-    $_SESSION['erro_login'] = 'E-mail ou senha incorretos.';
-    $_SESSION['email_login'] = $email;
-    redirecionar('index.php?tela=login');
-} elseif ($acao === 'sair') {
+if ($acao === 'sair') {
     // Encerra a sessão e retorna à consulta pública.
     $login->sair();
     redirecionar();
@@ -746,13 +787,13 @@ if ($acao === 'entrar') {
 }
 ```
 
-O campo `acao` seleciona o método a chamar. Login pode ser enviado por um visitante; as demais ações exigem usuário autenticado. O acesso direto a `operacoes.php` por GET retorna 405 e não executa nenhuma operação.
+O campo `acao` seleciona o método a chamar. Todas as ações de `operacoes.php` exigem usuário autenticado. O acesso direto a `operacoes.php` por GET retorna 405 e não executa nenhuma operação.
 
-Quando o login falha, o arquivo guarda a mensagem e o e-mail em `$_SESSION` e redireciona para a tela de login. O `index.php` recupera esses dados e os remove da sessão depois de recebê-los. A senha nunca é guardada nesse retorno.
+Quando o login falha, o `login.php` guarda a mensagem e o e-mail em `$_SESSION` e redireciona para a tela de login. O `index.php` recupera esses dados e os remove da sessão depois de recebê-los. A senha nunca é guardada nesse retorno.
 
 ### Login e sessão
 
-`session_start()` recupera a sessão entre requisições. Ao receber o POST em `operacoes.php`, `entrar()` valida as credenciais; se funcionar, a página redireciona para a lista. A mensagem de erro não revela se o e-mail existe. O formulário mantém o e-mail e não preenche novamente a senha.
+`session_start()` recupera a sessão entre requisições. Ao receber o POST em `login.php`, `entrar()` valida as credenciais; se funcionar, a página redireciona para a lista. A mensagem de erro não revela se o e-mail existe. O formulário mantém o e-mail e não preenche novamente a senha.
 
 `$logado` recebe o resultado de `estaLogado()` para decidir quais botões mostrar. O nome do administrador aparece na barra superior. Sair envia POST, apaga a sessão e retorna à consulta pública.
 
@@ -783,7 +824,7 @@ Mantivemos uma proteção pequena: cada sessão possui um token aleatório, envi
 ```text
 Conexao::conectar() → PDO compartilhado por Login e Cadastro
 
-POST operacoes.php acao=entrar  → Login::entrar() → sessão → listagem
+POST login.php → Login::entrar() → sessão → listagem
 GET busca=Cad    → Cadastro::listar() → tabela filtrada
 GET tela=cadastro&id=1 → Cadastro::buscar() → formulário preenchido
 POST operacoes.php acao=salvar → exige login → cadastrar() ou alterar() → listagem
@@ -791,7 +832,7 @@ POST operacoes.php acao=excluir → exige login → excluir() → listagem
 POST operacoes.php acao=sair   → Login::sair() → consulta pública
 ```
 
-O `index.php` escolhe a tela e consulta os dados para exibição. Os formulários enviam suas operações para `operacoes.php`, que chama as classes e redireciona. As classes concentram as responsabilidades de banco e autenticação.
+O `index.php` escolhe a tela e consulta os dados para exibição. O formulário de autenticação envia os dados para `login.php`. Os outros formulários enviam suas operações para `operacoes.php`, que chama as classes e redireciona. As classes concentram as responsabilidades de banco e autenticação.
 
 ## 9. Roteiro de teste no XAMPP
 
@@ -819,6 +860,7 @@ O `index.php` escolhe a tela e consulta os dados para exibição. Os formulário
 | Sair e reabrir uma URL de edição | Solicita login |
 | Acessar `index.php?acao=excluir&id=1` por GET | Não exclui nada |
 | Abrir `operacoes.php` diretamente por GET | Resposta 405, sem alterar dados |
+| Abrir `login.php` diretamente por GET | Resposta 405; use a tela `index.php?tela=login` |
 | Enviar manutenção por POST sem login | Redireciona para o login e não altera dados |
 | Conferir `usuarios.senha` no phpMyAdmin | Contém hash, não a senha original |
 

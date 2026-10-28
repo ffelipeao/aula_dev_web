@@ -29,9 +29,7 @@ function redirecionar(string $pagina = 'index.php'): void
 $acao = $_POST['acao'] ?? '';
 
 // Impede manutenção por visitantes, mesmo que enviem um POST manualmente.
-if ($acao !== 'entrar') {
-    $login->exigirLogin();
-}
+$login->exigirLogin();
 
 // Confere se o token recebido pertence à sessão atual.
 $token = $_POST['token'] ?? '';
@@ -41,18 +39,7 @@ if (!isset($_SESSION['token']) || !is_string($token)
     exit('Formulário inválido. Volte e atualize a página.');
 }
 
-if ($acao === 'entrar') {
-    // Retira espaços do e-mail e confere as credenciais no banco.
-    $email = trim($_POST['email'] ?? '');
-    if ($login->entrar($email, $_POST['senha'] ?? '')) {
-        // Após entrar, volta para a listagem com as ações liberadas.
-        redirecionar();
-    }
-    // Guarda o erro e o e-mail para exibir uma única vez na tela de login.
-    $_SESSION['erro_login'] = 'E-mail ou senha incorretos.';
-    $_SESSION['email_login'] = $email;
-    redirecionar('index.php?tela=login');
-} elseif ($acao === 'sair') {
+if ($acao === 'sair') {
     // Encerra a sessão e retorna à consulta pública.
     $login->sair();
     redirecionar();

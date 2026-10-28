@@ -21,6 +21,7 @@ O estoque será a quantidade atual de cada produto, informada no formulário. N�
 php-mysql-estoque/
 ├── banco.sql
 ├── index.php
+├── operacoes.php
 └── classes/
     ├── Conexao.php
     ├── Login.php
@@ -33,9 +34,10 @@ php-mysql-estoque/
 | `classes/Conexao.php` | Abrir a conexão PDO |
 | `classes/Login.php` | Entrar, consultar a sessão, proteger acesso e sair |
 | `classes/Cadastro.php` | Reunir todas as operações SQL de produtos |
-| `index.php` | Processar formulários e mostrar login, lista, cadastro/edição e modal |
+| `index.php` | Consultar os dados e mostrar login, lista, cadastro/edição e modal |
+| `operacoes.php` | Receber os formulários POST de login, saída, gravação e exclusão |
 
-As telas, o cabeçalho, o rodapé e o processamento ficam no próprio `index.php`. As três classes ficam separadas para destacar suas responsabilidades. Não usaremos framework ou Composer.
+As telas, o cabeçalho e o rodapé ficam no `index.php`. O arquivo intermediário `operacoes.php` recebe os formulários e executa as operações. As três classes ficam separadas para destacar suas responsabilidades. Não usaremos framework ou Composer.
 
 ## 2. Preparar o XAMPP
 
@@ -329,9 +331,9 @@ Em `LIKE`, `%` representa qualquer sequência de caracteres. A busca vazia gera 
 
 Os valores de `execute()` seguem a ordem dos `?`. No UPDATE, o ID é o último. Observe o `WHERE id = ?`, que restringe qual produto será alterado ou removido. O preço é recebido como texto decimal para gravar no banco sem cálculos com ponto flutuante.
 
-## 7. Página única: processamento e telas
+## 7. Telas e arquivo intermediário de operações
 
-Copie o arquivo completo abaixo. Ele substitui o teste temporário de conexão. Para explicar em sala, leia primeiro o início do arquivo, depois o formulário de login e só então as operações de produtos.
+Crie os dois arquivos abaixo. O `index.php` substitui o teste temporário de conexão e exibe as telas. O `operacoes.php` recebe os dados enviados pelos formulários. Para explicar em sala, comece pelo formulário de login e acompanhe seu envio até o arquivo intermediário.
 
 ### Como a página escolhe o que fazer
 
@@ -344,9 +346,9 @@ O parâmetro GET `tela` escolhe o conteúdo exibido:
 | `index.php?tela=cadastro` | Novo produto, com login obrigatório |
 | `index.php?tela=cadastro&id=1` | Mesmo formulário preenchido para edição |
 
-O ID `1` é um exemplo: use um ID existente. Os formulários enviam um campo oculto `acao` por POST, com um destes valores: `entrar`, `sair`, `salvar` ou `excluir`.
+O ID `1` é um exemplo: use um ID existente. Os formulários enviam os dados para `operacoes.php`, com um campo oculto `acao` por POST, com um destes valores: `entrar`, `sair`, `salvar` ou `excluir`.
 
-Todo processamento acontece antes do HTML, porque `session_start()` e `header()` precisam executar antes de enviar conteúdo ao navegador. `redirecionar()` reúne o `header()` e o `exit` usados após as operações.
+O `index.php` inicia a sessão, consulta os dados necessários e monta o HTML. O `operacoes.php` inicia a sessão, confere o login e o token, executa a operação solicitada e redireciona para `index.php`. Ele não monta telas. Sua função `redirecionar()` reúne `header()` e `exit`. Cada arquivo carrega as classes e abre sua conexão, pois são executados em requisições diferentes.
 
 ### Bootstrap
 
@@ -378,96 +380,23 @@ function escapar($valor): string
     return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 }
 
-// Abre a página indicada e encerra o processamento atual.
-function redirecionar(string $pagina = 'index.php'): void
-{
-    header('Location: ' . $pagina);
-    exit;
-}
-
 // Gera uma identificação para proteger os formulários desta sessão.
 if (!isset($_SESSION['token'])) {
     $_SESSION['token'] = bin2hex(random_bytes(32));
 }
 
 $tela = $_GET['tela'] ?? 'lista';
-$erro = '';
-$email = '';
-
-// Processa os formulários antes de montar a página.
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $acao = $_POST['acao'] ?? '';
-
-    // Impede manutenção por visitantes, mesmo que enviem um POST manualmente.
-    if ($acao !== 'entrar') {
-        $login->exigirLogin();
-    }
-
-    // Confere se o token recebido pertence à sessão atual.
-    $token = $_POST['token'] ?? '';
-    if (!is_string($token) || !hash_equals($_SESSION['token'], $token)) {
-        http_response_code(403);
-        exit('Formulário inválido. Volte e atualize a página.');
-    }
-
-    if ($acao === 'entrar') {
-        // Retira espaços do e-mail e confere as credenciais no banco.
-        $email = trim($_POST['email'] ?? '');
-        if ($login->entrar($email, $_POST['senha'] ?? '')) {
-            // Após entrar, volta para a listagem com as ações liberadas.
-            redirecionar();
-        }
-        $erro = 'E-mail ou senha incorretos.';
-        $tela = 'login';
-    } elseif ($acao === 'sair') {
-        // Encerra a sessão e retorna à consulta pública.
-        $login->sair();
-        redirecionar();
-    } elseif ($acao === 'salvar') {
-        $id = (int) ($_POST['id'] ?? 0);
-        // Retira espaços e recebe o preço como texto decimal.
-        $nome = trim($_POST['nome'] ?? '');
-        $preco = $_POST['preco'] ?? '';
-        // Aceita apenas quantidade inteira dentro dos limites da coluna.
-        $quantidade = filter_var($_POST['quantidade'] ?? '', FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 0, 'max_range' => 4294967295]]);
-
-        // Confere somente as regras básicas de nome, preço e quantidade.
-        if ($nome === '' || mb_strlen($nome) > 100
-            || !preg_match('/^\d{1,8}(\.\d{1,2})?$/D', $preco)
-            || $quantidade === false) {
-            http_response_code(400);
-            exit('Informe nome (até 100 caracteres), preço válido e quantidade inteira não negativa. Volte ao formulário.');
-        }
-
-        if ($id !== 0) {
-            // Confere se o produto ainda existe antes de atualizar.
-            if (!$cadastro->buscar($id)) {
-                http_response_code(404);
-                exit('Produto não encontrado.');
-            }
-            // Atualiza o registro identificado pelo ID.
-            $cadastro->alterar($id, $nome, $preco, $quantidade);
-        } else {
-            // Insere um produto; o banco gera seu ID.
-            $cadastro->cadastrar($nome, $preco, $quantidade);
-        }
-        // Evita repetir o envio ao atualizar o navegador.
-        redirecionar();
-    } elseif ($acao === 'excluir') {
-        // Exclui somente o ID enviado pela confirmação do modal.
-        $cadastro->excluir((int) ($_POST['id'] ?? 0));
-        redirecionar();
-    } else {
-        http_response_code(400);
-        exit('Ação desconhecida.');
-    }
-}
+// Recupera o resultado do login e o remove após esta exibição.
+$erro = $_SESSION['erro_login'] ?? '';
+$email = $_SESSION['email_login'] ?? '';
+unset($_SESSION['erro_login'], $_SESSION['email_login']);
 
 // Consulta a sessão uma vez para decidir quais botões exibir.
 $logado = $login->estaLogado();
 if ($tela === 'login' && $logado) {
-    redirecionar();
+    // Envia quem já entrou para a listagem.
+    header('Location: index.php');
+    exit;
 }
 
 $produto = ['id' => '', 'nome' => '', 'preco' => '', 'quantidade' => 0];
@@ -508,7 +437,7 @@ $titulo = match ($tela) {
         <?php if ($logado) { ?>
             <div class="d-flex align-items-center gap-3">
                 <span class="text-white"><?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['usuario']['nome']) ?></span>
-                <form action="index.php" method="post">
+                <form action="operacoes.php" method="post">
                     <input type="hidden" name="acao" value="sair">
                     <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
                     <button class="btn btn-outline-light btn-sm">Sair</button>
@@ -531,7 +460,7 @@ $titulo = match ($tela) {
                 <?php if ($erro !== '') { ?>
                     <div class="alert alert-danger" role="alert"><?= /* Exibe texto seguro no HTML. */ escapar($erro) ?></div>
                 <?php } ?>
-                <form method="post" action="index.php?tela=login">
+                <form method="post" action="operacoes.php">
                     <input type="hidden" name="acao" value="entrar">
                     <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
                     <div class="mb-3">
@@ -556,7 +485,7 @@ $titulo = match ($tela) {
 <div class="card shadow-sm mx-auto" style="max-width: 640px">
 <div class="card-body p-4">
     <h1 class="h3 mb-4"><?= /* Exibe texto seguro no HTML. */ escapar($titulo) ?></h1>
-    <form action="index.php" method="post">
+    <form action="operacoes.php" method="post">
         <input type="hidden" name="acao" value="salvar">
         <input type="hidden" name="id" value="<?= /* Exibe texto seguro no HTML. */ escapar($produto['id']) ?>">
         <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
@@ -635,7 +564,7 @@ $titulo = match ($tela) {
 <?php if ($logado) { ?>
 <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloExcluir" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="index.php" method="post" class="modal-content">
+        <form action="operacoes.php" method="post" class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title fs-5" id="tituloExcluir">Confirmar exclusão</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
@@ -668,9 +597,117 @@ document.getElementById('modalExcluir').addEventListener('show.bs.modal', functi
 </html>
 ```
 
+### `operacoes.php`
+
+Todos os formulários de manutenção e autenticação têm `action="operacoes.php"`. O formulário de busca continua enviando GET para `index.php`, pois só consulta dados.
+
+```php
+<?php
+// Inicia a sessão antes de qualquer saída HTML.
+session_start();
+
+// Carrega as três classes usadas nesta página.
+require_once __DIR__ . '/classes/Conexao.php';
+require_once __DIR__ . '/classes/Login.php';
+require_once __DIR__ . '/classes/Cadastro.php';
+
+// Abre uma conexão e a compartilha com os dois objetos.
+$pdo = (new Conexao())->conectar();
+$login = new Login($pdo);
+$cadastro = new Cadastro($pdo);
+
+// Aceita operações somente quando enviadas pelos formulários POST.
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST');
+    http_response_code(405);
+    exit('Envie a operação pelo formulário.');
+}
+
+// Abre a página indicada e encerra o processamento atual.
+function redirecionar(string $pagina = 'index.php'): void
+{
+    header('Location: ' . $pagina);
+    exit;
+}
+
+$acao = $_POST['acao'] ?? '';
+
+// Impede manutenção por visitantes, mesmo que enviem um POST manualmente.
+if ($acao !== 'entrar') {
+    $login->exigirLogin();
+}
+
+// Confere se o token recebido pertence à sessão atual.
+$token = $_POST['token'] ?? '';
+if (!isset($_SESSION['token']) || !is_string($token)
+    || !hash_equals($_SESSION['token'], $token)) {
+    http_response_code(403);
+    exit('Formulário inválido. Volte e atualize a página.');
+}
+
+if ($acao === 'entrar') {
+    // Retira espaços do e-mail e confere as credenciais no banco.
+    $email = trim($_POST['email'] ?? '');
+    if ($login->entrar($email, $_POST['senha'] ?? '')) {
+        // Após entrar, volta para a listagem com as ações liberadas.
+        redirecionar();
+    }
+    // Guarda o erro e o e-mail para exibir uma única vez na tela de login.
+    $_SESSION['erro_login'] = 'E-mail ou senha incorretos.';
+    $_SESSION['email_login'] = $email;
+    redirecionar('index.php?tela=login');
+} elseif ($acao === 'sair') {
+    // Encerra a sessão e retorna à consulta pública.
+    $login->sair();
+    redirecionar();
+} elseif ($acao === 'salvar') {
+    $id = (int) ($_POST['id'] ?? 0);
+    // Retira espaços e recebe o preço como texto decimal.
+    $nome = trim($_POST['nome'] ?? '');
+    $preco = $_POST['preco'] ?? '';
+    // Aceita apenas quantidade inteira dentro dos limites da coluna.
+    $quantidade = filter_var($_POST['quantidade'] ?? '', FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 0, 'max_range' => 4294967295]]);
+
+    // Confere somente as regras básicas de nome, preço e quantidade.
+    if ($nome === '' || mb_strlen($nome) > 100
+        || !preg_match('/^\d{1,8}(\.\d{1,2})?$/D', $preco)
+        || $quantidade === false) {
+        http_response_code(400);
+        exit('Informe nome (até 100 caracteres), preço válido e quantidade inteira não negativa. Volte ao formulário.');
+    }
+
+    if ($id !== 0) {
+        // Confere se o produto ainda existe antes de atualizar.
+        if (!$cadastro->buscar($id)) {
+            http_response_code(404);
+            exit('Produto não encontrado.');
+        }
+        // Atualiza o registro identificado pelo ID.
+        $cadastro->alterar($id, $nome, $preco, $quantidade);
+    } else {
+        // Insere um produto; o banco gera seu ID.
+        $cadastro->cadastrar($nome, $preco, $quantidade);
+    }
+    // Evita repetir o envio ao atualizar o navegador.
+    redirecionar();
+} elseif ($acao === 'excluir') {
+    // Exclui somente o ID enviado pela confirmação do modal.
+    $cadastro->excluir((int) ($_POST['id'] ?? 0));
+    redirecionar();
+} else {
+    http_response_code(400);
+    exit('Ação desconhecida.');
+}
+```
+
+O campo `acao` seleciona o método a chamar. Login pode ser enviado por um visitante; as demais ações exigem usuário autenticado. O acesso direto a `operacoes.php` por GET retorna 405 e não executa nenhuma operação.
+
+Quando o login falha, o arquivo guarda a mensagem e o e-mail em `$_SESSION` e redireciona para a tela de login. O `index.php` recupera esses dados e os remove da sessão depois de recebê-los. A senha nunca é guardada nesse retorno.
+
 ### Login e sessão
 
-`session_start()` recupera a sessão entre requisições. No POST de entrada, `entrar()` valida as credenciais; se funcionar, a página redireciona para a lista. A mensagem de erro não revela se o e-mail existe. O formulário mantém o e-mail e não preenche novamente a senha.
+`session_start()` recupera a sessão entre requisições. Ao receber o POST em `operacoes.php`, `entrar()` valida as credenciais; se funcionar, a página redireciona para a lista. A mensagem de erro não revela se o e-mail existe. O formulário mantém o e-mail e não preenche novamente a senha.
 
 `$logado` recebe o resultado de `estaLogado()` para decidir quais botões mostrar. O nome do administrador aparece na barra superior. Sair envia POST, apaga a sessão e retorna à consulta pública.
 
@@ -690,7 +727,7 @@ Sem ID, o formulário começa vazio, com quantidade zero. Com ID, `buscar()` pre
 
 Há um único modal para toda a tabela. Cada botão carrega o ID e o nome em `data-id` e `data-nome`. O evento `show.bs.modal` identifica o botão clicado e preenche a confirmação. `textContent` exibe o nome como texto.
 
-**Cancelar** apenas fecha o modal. **Confirmar exclusão** envia POST com `acao=excluir`. O PHP exige login antes de chamar `excluir()`. Abrir o modal ou acessar um endereço por GET não apaga produtos.
+**Cancelar** apenas fecha o modal. **Confirmar exclusão** envia POST com `acao=excluir`. O `operacoes.php` exige login antes de chamar `excluir()`. Abrir o modal ou acessar um endereço por GET não apaga produtos.
 
 ### Token dos formulários
 
@@ -701,15 +738,15 @@ Mantivemos uma proteção pequena: cada sessão possui um token aleatório, envi
 ```text
 Conexao::conectar() → PDO compartilhado por Login e Cadastro
 
-POST acao=entrar  → Login::entrar() → sessão → listagem
+POST operacoes.php acao=entrar  → Login::entrar() → sessão → listagem
 GET busca=Cad    → Cadastro::listar() → tabela filtrada
 GET tela=cadastro&id=1 → Cadastro::buscar() → formulário preenchido
-POST acao=salvar → exige login → cadastrar() ou alterar() → listagem
-POST acao=excluir → exige login → excluir() → listagem
-POST acao=sair   → Login::sair() → consulta pública
+POST operacoes.php acao=salvar → exige login → cadastrar() ou alterar() → listagem
+POST operacoes.php acao=excluir → exige login → excluir() → listagem
+POST operacoes.php acao=sair   → Login::sair() → consulta pública
 ```
 
-O `index.php` recebe o pedido e escolhe a tela ou operação. As classes executam as responsabilidades de banco e autenticação.
+O `index.php` escolhe a tela e consulta os dados para exibição. Os formulários enviam suas operações para `operacoes.php`, que chama as classes e redireciona. As classes concentram as responsabilidades de banco e autenticação.
 
 ## 9. Roteiro de teste no XAMPP
 
@@ -736,6 +773,8 @@ O `index.php` recebe o pedido e escolhe a tela ou operação. As classes executa
 | Cadastrar nome `<b>Teste</b>` | Mostra texto literal, sem negrito |
 | Sair e reabrir uma URL de edição | Solicita login |
 | Acessar `index.php?acao=excluir&id=1` por GET | Não exclui nada |
+| Abrir `operacoes.php` diretamente por GET | Resposta 405, sem alterar dados |
+| Enviar manutenção por POST sem login | Redireciona para o login e não altera dados |
 | Conferir `usuarios.senha` no phpMyAdmin | Contém hash, não a senha original |
 
 Para observar a regra no servidor, remova temporariamente `min` pelo inspetor e envie quantidade negativa: o PHP deve responder 400. Alterar o token oculto deve produzir 403 sem gravar. Recarregue a página para continuar.

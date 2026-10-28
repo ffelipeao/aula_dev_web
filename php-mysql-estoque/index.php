@@ -18,96 +18,23 @@ function escapar($valor): string
     return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 }
 
-// Abre a página indicada e encerra o processamento atual.
-function redirecionar(string $pagina = 'index.php'): void
-{
-    header('Location: ' . $pagina);
-    exit;
-}
-
 // Gera uma identificação para proteger os formulários desta sessão.
 if (!isset($_SESSION['token'])) {
     $_SESSION['token'] = bin2hex(random_bytes(32));
 }
 
 $tela = $_GET['tela'] ?? 'lista';
-$erro = '';
-$email = '';
-
-// Processa os formulários antes de montar a página.
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $acao = $_POST['acao'] ?? '';
-
-    // Impede manutenção por visitantes, mesmo que enviem um POST manualmente.
-    if ($acao !== 'entrar') {
-        $login->exigirLogin();
-    }
-
-    // Confere se o token recebido pertence à sessão atual.
-    $token = $_POST['token'] ?? '';
-    if (!is_string($token) || !hash_equals($_SESSION['token'], $token)) {
-        http_response_code(403);
-        exit('Formulário inválido. Volte e atualize a página.');
-    }
-
-    if ($acao === 'entrar') {
-        // Retira espaços do e-mail e confere as credenciais no banco.
-        $email = trim($_POST['email'] ?? '');
-        if ($login->entrar($email, $_POST['senha'] ?? '')) {
-            // Após entrar, volta para a listagem com as ações liberadas.
-            redirecionar();
-        }
-        $erro = 'E-mail ou senha incorretos.';
-        $tela = 'login';
-    } elseif ($acao === 'sair') {
-        // Encerra a sessão e retorna à consulta pública.
-        $login->sair();
-        redirecionar();
-    } elseif ($acao === 'salvar') {
-        $id = (int) ($_POST['id'] ?? 0);
-        // Retira espaços e recebe o preço como texto decimal.
-        $nome = trim($_POST['nome'] ?? '');
-        $preco = $_POST['preco'] ?? '';
-        // Aceita apenas quantidade inteira dentro dos limites da coluna.
-        $quantidade = filter_var($_POST['quantidade'] ?? '', FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 0, 'max_range' => 4294967295]]);
-
-        // Confere somente as regras básicas de nome, preço e quantidade.
-        if ($nome === '' || mb_strlen($nome) > 100
-            || !preg_match('/^\d{1,8}(\.\d{1,2})?$/D', $preco)
-            || $quantidade === false) {
-            http_response_code(400);
-            exit('Informe nome (até 100 caracteres), preço válido e quantidade inteira não negativa. Volte ao formulário.');
-        }
-
-        if ($id !== 0) {
-            // Confere se o produto ainda existe antes de atualizar.
-            if (!$cadastro->buscar($id)) {
-                http_response_code(404);
-                exit('Produto não encontrado.');
-            }
-            // Atualiza o registro identificado pelo ID.
-            $cadastro->alterar($id, $nome, $preco, $quantidade);
-        } else {
-            // Insere um produto; o banco gera seu ID.
-            $cadastro->cadastrar($nome, $preco, $quantidade);
-        }
-        // Evita repetir o envio ao atualizar o navegador.
-        redirecionar();
-    } elseif ($acao === 'excluir') {
-        // Exclui somente o ID enviado pela confirmação do modal.
-        $cadastro->excluir((int) ($_POST['id'] ?? 0));
-        redirecionar();
-    } else {
-        http_response_code(400);
-        exit('Ação desconhecida.');
-    }
-}
+// Recupera o resultado do login e o remove após esta exibição.
+$erro = $_SESSION['erro_login'] ?? '';
+$email = $_SESSION['email_login'] ?? '';
+unset($_SESSION['erro_login'], $_SESSION['email_login']);
 
 // Consulta a sessão uma vez para decidir quais botões exibir.
 $logado = $login->estaLogado();
 if ($tela === 'login' && $logado) {
-    redirecionar();
+    // Envia quem já entrou para a listagem.
+    header('Location: index.php');
+    exit;
 }
 
 $produto = ['id' => '', 'nome' => '', 'preco' => '', 'quantidade' => 0];
@@ -148,7 +75,7 @@ $titulo = match ($tela) {
         <?php if ($logado) { ?>
             <div class="d-flex align-items-center gap-3">
                 <span class="text-white"><?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['usuario']['nome']) ?></span>
-                <form action="index.php" method="post">
+                <form action="operacoes.php" method="post">
                     <input type="hidden" name="acao" value="sair">
                     <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
                     <button class="btn btn-outline-light btn-sm">Sair</button>
@@ -171,7 +98,7 @@ $titulo = match ($tela) {
                 <?php if ($erro !== '') { ?>
                     <div class="alert alert-danger" role="alert"><?= /* Exibe texto seguro no HTML. */ escapar($erro) ?></div>
                 <?php } ?>
-                <form method="post" action="index.php?tela=login">
+                <form method="post" action="operacoes.php">
                     <input type="hidden" name="acao" value="entrar">
                     <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
                     <div class="mb-3">
@@ -196,7 +123,7 @@ $titulo = match ($tela) {
 <div class="card shadow-sm mx-auto" style="max-width: 640px">
 <div class="card-body p-4">
     <h1 class="h3 mb-4"><?= /* Exibe texto seguro no HTML. */ escapar($titulo) ?></h1>
-    <form action="index.php" method="post">
+    <form action="operacoes.php" method="post">
         <input type="hidden" name="acao" value="salvar">
         <input type="hidden" name="id" value="<?= /* Exibe texto seguro no HTML. */ escapar($produto['id']) ?>">
         <input type="hidden" name="token" value="<?= /* Exibe texto seguro no HTML. */ escapar($_SESSION['token']) ?>">
@@ -275,7 +202,7 @@ $titulo = match ($tela) {
 <?php if ($logado) { ?>
 <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloExcluir" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="index.php" method="post" class="modal-content">
+        <form action="operacoes.php" method="post" class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title fs-5" id="tituloExcluir">Confirmar exclusão</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>

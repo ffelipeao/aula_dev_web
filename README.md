@@ -14,6 +14,8 @@ Novas atividades e materiais serão incluídos a cada semana de aula, acompanhan
 
 - [HTML e JavaScript básico](2-TUTORIAL_JAVASCRIPT_BASICO.md)
 - [HTML e PHP básico](5-TUTORIAL_PHP_BASICO.md)
-- [PHP e MySQL com XAMPP: cadastro, consulta, edição e exclusão](6-TUTORIAL_PHP_MYSQL_XAMPP.md)
+- [PHP e MySQL com XAMPP: cadastro, consulta, edição e exclusão](7-TUTORIAL_PHP_MYSQL_XAMPP.md)
 
-- [Primeira demonstração de PHP e MySQL no XAMPP: cadastro de alunos](7-TUTORIAL_PHP_MYSQL_PRIMEIRO_CADASTRO.md)
+- [Primeira demonstração de PHP e MySQL no XAMPP: cadastro de alunos](6-TUTORIAL_PHP_MYSQL_PRIMEIRO_CADASTRO.md)
+
+- [PHP com classes e MySQL no XAMPP: controle de estoque com login](8-TUTORIAL_PHP_MYSQL_ESTOQUE_CLASSES_LOGIN.md)

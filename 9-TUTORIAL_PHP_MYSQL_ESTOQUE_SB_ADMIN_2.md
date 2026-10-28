@@ -14,6 +14,30 @@ Neste tutorial, vamos adaptar o sistema do [tutorial 8](8-TUTORIAL_PHP_MYSQL_EST
 
 As duas versões usam o banco `aula_estoque`. Produtos cadastrados, alterados ou excluídos em uma aparecem também na outra. Para trabalhar com bancos independentes, altere o nome no SQL antes da importação e na variável `$banco` da respectiva `Conexao.php`. Reimportar o SQL não redefine a senha de um administrador existente.
 
+### Opção rápida: clonar somente a pasta deste projeto
+
+Com o **Git instalado**, abra o terminal na pasta em que deseja guardar o projeto e execute:
+
+```sh
+git clone --depth 1 --filter=blob:none --no-checkout https://github.com/ffelipeao/aula_dev_web.git aula-estoque-9
+cd aula-estoque-9
+git sparse-checkout set --no-cone "/php-mysql-estoque-sb-admin-2/"
+git checkout
+cd php-mysql-estoque-sb-admin-2
+```
+
+O clone parcial evita baixar de início o conteúdo dos arquivos; o `sparse-checkout` seleciona somente a pasta **`php-mysql-estoque-sb-admin-2`**, incluindo suas subpastas. `--depth 1` limita o histórico ao estado mais recente. A pasta `aula-estoque-9` guarda os metadados do Git e a pasta do projeto selecionado. Escolha uma pasta de destino que ainda não exista. Os comandos usam HTTPS e não exigem configurar uma chave SSH para um repositório público.
+
+Depois, mantenha o **MySQL iniciado**, importe o `banco.sql` desta pasta no phpMyAdmin e ajuste as variáveis de `classes/Conexao.php` se necessário. Ainda dentro da pasta `php-mysql-estoque-sb-admin-2`, execute:
+
+```sh
+php -S localhost:8000
+```
+
+Abra **http://localhost:8000/** e entre com **admin@estoque.local**, senha **Aula@123**. Se `php` não estiver no PATH, use o caminho do executável do XAMPP indicado no tutorial 8. Encerre o servidor com **Ctrl+C**.
+
+Para usar o Apache, copie a pasta interna `php-mysql-estoque-sb-admin-2` para `htdocs` e abra **http://localhost/php-mysql-estoque-sb-admin-2/**. Não é necessário copiar a pasta externa `aula-estoque-9`. Se o Git não reconhecer `sparse-checkout`, atualize-o antes de executar estes comandos.
+
 ## 2. O que muda
 
 A mudança está na apresentação do `index.php` e nos arquivos da pasta `assets`. Os arquivos `banco.sql`, `login.php`, `operacoes.php` e as três classes permanecem iguais aos do tutorial 8. O formulário continua enviando o login para `login.php` e a manutenção para `operacoes.php`.

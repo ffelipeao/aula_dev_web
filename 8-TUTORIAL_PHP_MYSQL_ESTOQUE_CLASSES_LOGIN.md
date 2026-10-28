@@ -60,6 +60,30 @@ Use a pasta da sua instalação. Se o Apache usar a porta 8080, acrescente `:808
 
 Salve os arquivos como UTF-8 sem BOM, sem espaços antes de `<?php`. Confira se o editor não acrescentou `.txt` ao nome.
 
+### Opção rápida: clonar somente a pasta deste projeto
+
+Com o **Git instalado**, abra o terminal na pasta em que deseja guardar o projeto e execute:
+
+```sh
+git clone --depth 1 --filter=blob:none --no-checkout https://github.com/ffelipeao/aula_dev_web.git aula-estoque-8
+cd aula-estoque-8
+git sparse-checkout set --no-cone "/php-mysql-estoque/"
+git checkout
+cd php-mysql-estoque
+```
+
+O clone parcial evita baixar de início o conteúdo dos arquivos; o `sparse-checkout` seleciona somente a pasta **`php-mysql-estoque`**, incluindo suas subpastas. `--depth 1` limita o histórico ao estado mais recente. A pasta `aula-estoque-8` guarda os metadados do Git e a pasta do projeto selecionado. Escolha uma pasta de destino que ainda não exista. Os comandos usam HTTPS e não exigem configurar uma chave SSH para um repositório público.
+
+Depois, mantenha o **MySQL iniciado**, importe o `banco.sql` desta pasta no phpMyAdmin e ajuste as variáveis de `classes/Conexao.php` se necessário. Ainda dentro da pasta `php-mysql-estoque`, execute:
+
+```sh
+php -S localhost:8000
+```
+
+Abra **http://localhost:8000/** e entre com **admin@estoque.local**, senha **Aula@123**. Se `php` não estiver no PATH, use o caminho do executável do XAMPP indicado no tutorial 8. Encerre o servidor com **Ctrl+C**.
+
+Para usar o Apache, copie a pasta interna `php-mysql-estoque` para `htdocs` e abra **http://localhost/php-mysql-estoque/**. Não é necessário copiar a pasta externa `aula-estoque-8`. Se o Git não reconhecer `sparse-checkout`, atualize-o antes de executar estes comandos.
+
 ### Opção: executar com o servidor do próprio PHP
 
 Você também pode executar as páginas pelo servidor embutido do PHP. Mantenha o **MySQL do XAMPP iniciado** e importe `banco.sql` conforme as instruções anteriores. O Apache só precisa estar ligado enquanto você estiver usando o phpMyAdmin; para acessar o sistema por esta opção, usaremos o servidor do PHP.

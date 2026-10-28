@@ -58,6 +58,43 @@ Use a pasta da sua instalação. Se o Apache usar a porta 8080, acrescente `:808
 
 Salve os arquivos como UTF-8 sem BOM, sem espaços antes de `<?php`. Confira se o editor não acrescentou `.txt` ao nome.
 
+### Opção: executar com o servidor do próprio PHP
+
+Você também pode executar as páginas pelo servidor embutido do PHP. Mantenha o **MySQL do XAMPP iniciado** e importe `banco.sql` conforme as instruções anteriores. O Apache só precisa estar ligado enquanto você estiver usando o phpMyAdmin; para acessar o sistema por esta opção, usaremos o servidor do PHP.
+
+No terminal, entre na pasta `php-mysql-estoque` e execute:
+
+```sh
+php -S localhost:8000
+```
+
+Esse comando considera que `php` está disponível no PATH. Caso não esteja, use o executável do XAMPP. No Windows, pelo Prompt de Comando:
+
+```bat
+cd /d C:\xampp\htdocs\php-mysql-estoque
+C:\xampp\php\php.exe -S localhost:8000
+```
+
+No macOS:
+
+```sh
+cd /Applications/XAMPP/xamppfiles/htdocs/php-mysql-estoque
+/Applications/XAMPP/xamppfiles/bin/php -S localhost:8000
+```
+
+No Linux:
+
+```sh
+cd /opt/lampp/htdocs/php-mysql-estoque
+/opt/lampp/bin/php -S localhost:8000
+```
+
+Ajuste os caminhos conforme sua instalação. Abra **http://localhost:8000/** no navegador e mantenha o terminal aberto. Para encerrar, pressione **Ctrl+C**. Se a porta 8000 estiver ocupada, use outra, como `8001`, tanto no comando quanto no endereço.
+
+A pasta em que o comando é executado será a raiz do servidor. Por isso, nessa opção o endereço não inclui `/php-mysql-estoque/`. A pasta também pode ficar fora de `htdocs`, desde que o comando seja executado dentro dela. Nos testes deste tutorial, use `http://localhost:8000/` como endereço inicial e acrescente os mesmos caminhos e parâmetros, como `index.php?tela=login`.
+
+O comando inicia somente o servidor das páginas PHP; o banco continua usando a configuração de `classes/Conexao.php`, normalmente na porta 3306. Use PHP 8 ou superior com a extensão `pdo_mysql`. O servidor embutido atende ao desenvolvimento local da aula.
+
 ## 3. Banco com dados iniciais
 
 **Administrador padrão da aula:**

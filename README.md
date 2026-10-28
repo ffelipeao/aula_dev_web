@@ -19,3 +19,5 @@ Novas atividades e materiais serão incluídos a cada semana de aula, acompanhan
 - [Primeira demonstração de PHP e MySQL no XAMPP: cadastro de alunos](6-TUTORIAL_PHP_MYSQL_PRIMEIRO_CADASTRO.md)
 
 - [PHP com classes e MySQL no XAMPP: controle de estoque com login](8-TUTORIAL_PHP_MYSQL_ESTOQUE_CLASSES_LOGIN.md)
+
+- [PHP e MySQL: adaptar o estoque ao template gratuito SB Admin 2](9-TUTORIAL_PHP_MYSQL_ESTOQUE_SB_ADMIN_2.md)
